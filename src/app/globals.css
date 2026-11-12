@@ -1,26 +1,130 @@
 @import "tailwindcss";
 
+/* ───────────────────────── Tokens ─────────────────────────
+   Direção "Radar da Despensa": papel creme / tinta quase preta,
+   um único acento verde-limão ácido e três cores de status. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --bg: #f3efe4;
+  --surface: #fbf9f3;
+  --surface-2: #e8e3d4;
+  --ink: #12140f;
+  --muted: #6d6c5f;
+  --line: rgb(18 20 15 / 0.09);
+  --accent: #c8f135;
+  --accent-ink: #12140f;
+  --crit: #e5432a;
+  --warn: #d98a00;
+  --ok: #0f9f6e;
+  --glow: rgb(200 241 53 / 0.4);
+  color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --bg: #0d0f0b;
+    --surface: #161912;
+    --surface-2: #22261c;
+    --ink: #f1eee3;
+    --muted: #8e8f7e;
+    --line: rgb(241 238 227 / 0.08);
+    --accent: #d4ff3a;
+    --accent-ink: #12140f;
+    --crit: #ff6b4a;
+    --warn: #ffc23d;
+    --ok: #3ee6a8;
+    --glow: rgb(212 255 58 / 0.22);
+    color-scheme: dark;
   }
 }
 
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-crit: var(--crit);
+  --color-warn: var(--warn);
+  --color-ok: var(--ok);
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-bricolage), var(--font-geist), ui-sans-serif, sans-serif;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  overscroll-behavior-y: none;
+  font-feature-settings: "ss01", "cv11";
+}
+
+/* Grão de papel sobre tudo — dá textura sem pesar. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0.06;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+@media (prefers-color-scheme: dark) {
+  body::after {
+    mix-blend-mode: screen;
+    opacity: 0.045;
+  }
+}
+
+button {
+  cursor: pointer;
+  user-select: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* Remove setas dos inputs numéricos */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Aurora: brilho limão que "respira" atrás do topo. */
+@keyframes aurora {
+  0%, 100% { transform: translate3d(-10%, 0, 0) scale(1); }
+  50% { transform: translate3d(10%, 6%, 0) scale(1.15); }
+}
+.aurora {
+  background: radial-gradient(closest-side, var(--glow), transparent);
+  filter: blur(40px);
+  animation: aurora 14s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora { animation: none; }
 }

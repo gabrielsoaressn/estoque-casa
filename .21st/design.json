@@ -1,0 +1,11 @@
+{
+  "name": "Radar da Despensa",
+  "decisions": [
+    {
+      "date": "2026-11-12",
+      "direction": "Editorial ousado: papel creme / tinta quase preta, acento único verde-limão ácido, display Bricolage Grotesque + Geist.",
+      "tokens": "CSS vars em src/app/globals.css (--bg, --surface, --surface-2, --ink, --muted, --line, --accent, --crit, --warn, --ok), expostas ao Tailwind via @theme inline.",
+      "motion": "motion/react com molas compartilhadas (src/components/motion.tsx), MotionConfig reducedMotion=user. Padrões: pílula layoutId, number ticker, sheet arrastável, swipe-to-buy, transição de abas com blur."
+    }
+  ]
+}

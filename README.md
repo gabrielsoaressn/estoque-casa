@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Estoque da Casa
 
-## Getting Started
+Controle o estoque de casa e saiba quando cada item vai acabar. Um único código gera:
 
-First, run the development server:
+- **Web app / PWA** — roda no navegador e pode ser "instalado" na tela inicial (funciona offline).
+- **APK Android** — o mesmo app empacotado com Capacitor.
+
+Stack: Next.js 15 (export estático) · Tailwind 4 · [motion](https://motion.dev) · Capacitor 7. Os dados ficam no `localStorage` do aparelho.
+
+## Rodar localmente (web app)
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # desenvolvimento com hot reload → http://localhost:3000
+npm run web        # versão de produção (build + servidor estático) → http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Para testar no celular na mesma rede Wi-Fi: `npm run dev -- -H 0.0.0.0` e abra `http://<IP-do-PC>:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Gerar o APK
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run android:apk                       # build + cap sync + gradlew assembleDebug
+cp android/app/build/outputs/apk/debug/app-debug.apk EstoqueDaCasa.apk
+npm run apk:share                         # página de download na rede local (porta 8080)
+```
 
-## Learn More
+Requer o Android SDK (`ANDROID_HOME=~/Android/Sdk`).
 
-To learn more about Next.js, take a look at the following resources:
+## Publicar no GitHub
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Crie um repositório vazio em <https://github.com/new> (ex.: `estoque-casa`), **sem** README/.gitignore.
+2. No terminal, dentro do projeto:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   ```bash
+   git add -A
+   git commit -m "Redesign Radar da Despensa + web app PWA"
+   git remote add origin https://github.com/<seu-usuario>/estoque-casa.git
+   git push -u origin main
+   ```
 
-## Deploy on Vercel
+   Se o GitHub pedir senha, use um **Personal Access Token** (Settings → Developer settings → Tokens) ou configure SSH.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Publicar na Vercel
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Opção A — pelo site (recomendado, deploy automático a cada push):**
+
+1. Entre em <https://vercel.com> com sua conta do GitHub.
+2. **Add New → Project** → importe o repositório `estoque-casa`.
+3. A Vercel detecta Next.js sozinha. Não mude nada: Build Command `next build`, Output automático.
+4. **Deploy**. Em ~1 min você recebe uma URL pública (`https://estoque-casa-xxxx.vercel.app`).
+5. A partir daí, todo `git push` na `main` publica uma nova versão; branches/PRs geram previews.
+
+**Opção B — pela linha de comando:**
+
+```bash
+npx vercel login       # uma vez
+npx vercel             # preview
+npx vercel --prod      # produção
+```
+
+Abra a URL no celular e use **"Adicionar à tela inicial"** para instalar como app.

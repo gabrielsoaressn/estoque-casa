@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Baixar Estoque da Casa</title>
+<link rel="icon" href="/icon.svg">
+<meta name="theme-color" content="#4f46e5">
+<script>/*__CONFIG__*/</script>
+<script>
+  if (/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent) || matchMedia("(pointer: coarse) and (max-width: 760px)").matches)
+    document.documentElement.classList.add("is-mobile");
+</script>
+<style>
+  :root {
+    --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --muted: #64748b; --line: #e2e8f0;
+    --brand: #4f46e5; --brand-press: #4338ca; --brand-soft: #eef2ff; --brand-text: #4f46e5;
+    --step: #f1f5f9; --warn-bg: #fffbeb; --warn-line: #fde68a; --warn-text: #92400e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #020617; --card: #0f172a; --text: #f1f5f9; --muted: #94a3b8; --line: #1e293b;
+      --brand-soft: rgba(99,102,241,.15); --brand-text: #a5b4fc; --step: #1e293b;
+      --warn-bg: rgba(245,158,11,.1); --warn-line: rgba(245,158,11,.3); --warn-text: #fcd34d;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+  main { max-width: 880px; margin: 0 auto; padding: max(32px, env(safe-area-inset-top)) 16px 48px; }
+
+  .hero { display: flex; align-items: center; gap: 20px; margin-bottom: 28px; }
+  .hero img { width: 84px; height: 84px; border-radius: 22px; box-shadow: 0 10px 30px -10px rgba(79,70,229,.6); flex-shrink: 0; }
+  .hero h1 { margin: 0; font-size: 28px; line-height: 1.15; letter-spacing: -.02em; }
+  .hero p { margin: 4px 0 0; color: var(--muted); }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .chip { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: var(--brand-soft); color: var(--brand-text); }
+
+  .grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
+  @media (min-width: 760px) { .grid { grid-template-columns: 300px 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 20px; }
+  .card h2 { margin: 0 0 4px; font-size: 17px; }
+  .card .sub { margin: 0 0 16px; color: var(--muted); font-size: 14px; }
+
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;
+    padding: 16px; border-radius: 18px; border: 0; background: var(--brand); color: #fff;
+    font: inherit; font-weight: 700; font-size: 17px; text-decoration: none; cursor: pointer;
+    box-shadow: 0 10px 24px -10px rgba(79,70,229,.7); transition: transform .1s, background .15s;
+  }
+  .btn:active { transform: scale(.98); background: var(--brand-press); }
+  .btn svg { width: 22px; height: 22px; }
+  .btn.disabled { opacity: .45; pointer-events: none; }
+
+  .qr { display: grid; place-items: center; background: #fff; border-radius: 18px; padding: 14px; aspect-ratio: 1; }
+  .qr svg, .qr img { width: 100%; height: auto; display: block; }
+  .qr .fallback { color: #64748b; font-size: 13px; text-align: center; }
+  .url {
+    margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: var(--step);
+    font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; word-break: break-all; text-align: center;
+  }
+
+  ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; counter-reset: s; }
+  ol li { display: flex; gap: 12px; align-items: flex-start; counter-increment: s; font-size: 15px; }
+  ol li::before {
+    content: counter(s); flex-shrink: 0; width: 28px; height: 28px; border-radius: 10px;
+    display: grid; place-items: center; background: var(--brand-soft); color: var(--brand-text);
+    font-weight: 700; font-size: 14px;
+  }
+  ol li span { padding-top: 3px; }
+  b { font-weight: 650; }
+
+  .note {
+    margin-top: 16px; padding: 12px 14px; border-radius: 14px; font-size: 14px;
+    background: var(--warn-bg); border: 1px solid var(--warn-line); color: var(--warn-text);
+  }
+  .features { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); margin-top: 16px; }
+  .feat { padding: 12px; border-radius: 16px; background: var(--step); font-size: 13px; color: var(--muted); }
+  .feat b { display: block; color: var(--text); font-size: 14px; margin-bottom: 2px; }
+
+  /* No celular: botão em destaque, QR some */
+  .only-desktop { display: block; }
+  .only-mobile { display: none; }
+  .is-mobile .only-desktop { display: none; }
+  .is-mobile .only-mobile { display: block; }
+  .is-mobile .grid { grid-template-columns: 1fr; }
+  @media (max-width: 520px) {
+    .hero { flex-direction: column; text-align: center; gap: 14px; }
+    .hero img { width: 72px; height: 72px; }
+    .hero h1 { font-size: 26px; }
+    .meta { justify-content: center; }
+  }
+  footer { margin-top: 28px; text-align: center; color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+  <header class="hero">
+    <img src="/icon.svg" alt="">
+    <div>
+      <h1>Estoque da Casa</h1>
+      <p>Saiba quando cada item vai acabar e monte a lista de feira sozinho.</p>
+      <div class="meta">
+        <span class="chip">Android 6.0+</span>
+        <span class="chip" id="size">APK</span>
+        <span class="chip" id="date"></span>
+      </div>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- PC: QR code para abrir no celular -->
+    <section class="card only-desktop">
+      <h2>Escaneie com o celular</h2>
+      <p class="sub">Use a câmera do Android. O celular precisa estar no mesmo Wi-Fi deste PC.</p>
+      <div class="qr" id="qr"><span class="fallback">Gerando QR code…</span></div>
+      <div class="url" id="url"></div>
+    </section>
+
+    <section class="card">
+      <div class="only-mobile" style="margin-bottom:20px">
+        <a class="btn" id="dl-mobile" href="/EstoqueDaCasa.apk" download>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-5-5m5 5 5-5M5 21h14"/></svg>
+          Baixar o app
+        </a>
+      </div>
+
+      <h2>Como instalar</h2>
+      <p class="sub">Leva menos de um minuto.</p>
+      <ol>
+        <li><span>Toque em <b>Baixar o app</b> e espere o download terminar.</span></li>
+        <li><span>Abra o arquivo <b>EstoqueDaCasa.apk</b> pela notificação ou na pasta <b>Downloads</b>.</span></li>
+        <li><span>Se o Android pedir, permita <b>instalar apps desta fonte</b> e volte.</span></li>
+        <li><span>Se o Play Protect avisar que o app é desconhecido, toque em <b>Mais detalhes → Instalar mesmo assim</b>.</span></li>
+        <li><span>Pronto! Abra o <b>Estoque da Casa</b> na tela inicial.</span></li>
+      </ol>
+
+      <div class="only-desktop" style="margin-top:20px">
+        <a class="btn" id="dl-desktop" href="/EstoqueDaCasa.apk" download>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-5-5m5 5 5-5M5 21h14"/></svg>
+          Baixar APK neste computador
+        </a>
+      </div>
+
+      <div class="note" id="missing" hidden>
+        O APK ainda não foi gerado. No PC, rode <b>npm run android:apk</b> e depois copie o arquivo para a raiz do projeto.
+      </div>
+
+      <div class="features">
+        <div class="feat"><b>🔴🟡🟢 Painel</b>Crítico, atenção e tranquilo</div>
+        <div class="feat"><b>📅 Previsão</b>Data exata em que acaba</div>
+        <div class="feat"><b>🛒 Lista de feira</b>Gerada sozinha, com “Comprado”</div>
+      </div>
+    </section>
+  </div>
+
+  <footer>Os dados ficam só no seu celular. Nenhuma conta necessária.</footer>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+  const cfg = window.APK_CONFIG || {};
+  const target = cfg.lanUrl || location.href;
+  document.getElementById("url").textContent = target;
+
+  if (cfg.apk) {
+    const mb = (cfg.apk.size / 1048576).toLocaleString("pt-BR", { maximumFractionDigits: 1 });
+    document.getElementById("size").textContent = `${mb} MB`;
+    document.getElementById("date").textContent =
+      "Atualizado em " + new Date(cfg.apk.mtime).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
+  } else {
+    document.getElementById("date").hidden = true;
+    document.getElementById("missing").hidden = false;
+    document.querySelectorAll(".btn").forEach((b) => b.classList.add("disabled"));
+  }
+
+  const qrBox = document.getElementById("qr");
+  try {
+    const qr = qrcode(0, "M");
+    qr.addData(target);
+    qr.make();
+    qrBox.innerHTML = qr.createSvgTag({ cellSize: 6, margin: 0, scalable: true });
+  } catch {
+    qrBox.innerHTML = '<span class="fallback">Sem internet para gerar o QR.<br>Digite o endereço abaixo no navegador do celular.</span>';
+  }
+</script>
+</body>
+</html>

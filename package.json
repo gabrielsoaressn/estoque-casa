@@ -6,22 +6,32 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "android": "next build && cap sync android && cap open android",
+    "android:sync": "next build && cap sync android",
+    "android:apk": "next build && cap sync android && cd android && ./gradlew assembleDebug",
+    "apk:share": "node download/server.mjs",
+    "web": "next build && npx -y serve@14 out -l 3000"
   },
   "dependencies": {
+    "@capacitor/android": "^7.6.10",
+    "@capacitor/core": "^7.6.10",
+    "lucide-react": "^1.68.0",
+    "motion": "^14.12.0",
+    "next": "15.5.29",
     "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "next": "15.5.29"
+    "react-dom": "19.1.0"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@capacitor/cli": "^7.6.10",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.5.29",
-    "@eslint/eslintrc": "^3"
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }
