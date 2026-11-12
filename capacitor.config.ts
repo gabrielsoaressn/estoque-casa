@@ -4,7 +4,9 @@ const config: CapacitorConfig = {
   appId: "br.com.estoquecasa.app",
   appName: "Estoque da Casa",
   webDir: "out",
-  android: { backgroundColor: "#0d0f0b" },
+  // Permite o assistente falar com o Ollama do PC pela rede local (http://IP:11434).
+  server: { cleartext: true },
+  android: { backgroundColor: "#0d0f0b", allowMixedContent: true },
 };
 
 export default config;

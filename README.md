@@ -17,6 +17,26 @@ npm run web        # versão de produção (build + servidor estático) → http
 
 Para testar no celular na mesma rede Wi-Fi: `npm run dev -- -H 0.0.0.0` e abra `http://<IP-do-PC>:3000`.
 
+## Assistente com IA (aba "Pergunte")
+
+Converse com o estoque em linguagem natural ("o que acaba essa semana?", "monte minha lista de compras").
+Usa um modelo **local** via [Ollama](https://ollama.com) — nada sai da sua rede. O app envia um retrato
+atualizado do estoque a cada pergunta e a resposta chega em streaming.
+
+```bash
+ollama pull qwen3.5:9b   # ou qualquer modelo de chat; o app lista os instalados
+ollama serve             # escuta em http://localhost:11434
+```
+
+- **Web local** (`npm run dev`): funciona direto.
+- **Celular/APK na mesma rede**: rode o Ollama aceitando conexões externas e aponte o app para o IP do PC
+  (ícone de ajustes na aba Pergunte → `http://192.168.x.x:11434`):
+  ```bash
+  OLLAMA_HOST=0.0.0.0 ollama serve
+  ```
+- **Versão na Vercel**: o navegador só consegue falar com o Ollama do próprio computador, e ele precisa
+  liberar a origem: `OLLAMA_ORIGINS="https://*.vercel.app" ollama serve`.
+
 ## Gerar o APK
 
 ```bash

@@ -1,16 +1,17 @@
 "use client";
 
-import { LayoutGrid, List, Plus, ShoppingBasket, type LucideIcon } from "lucide-react";
+import { LayoutGrid, List, Plus, ShoppingBasket, Sparkles, type LucideIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { spring } from "./motion";
 
-export type Tab = "dashboard" | "products" | "shopping";
-export const TAB_ORDER: Tab[] = ["dashboard", "products", "shopping"];
+export type Tab = "dashboard" | "products" | "shopping" | "assistant";
+export const TAB_ORDER: Tab[] = ["dashboard", "products", "shopping", "assistant"];
 
 const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
   { id: "dashboard", label: "Painel", icon: LayoutGrid },
   { id: "products", label: "Produtos", icon: List },
   { id: "shopping", label: "Feira", icon: ShoppingBasket },
+  { id: "assistant", label: "Pergunte", icon: Sparkles },
 ];
 
 interface Props {
@@ -38,7 +39,7 @@ export function BottomNav({ tab, onTab, onAdd, shoppingCount }: Props) {
                 aria-label={label}
                 aria-current={active ? "page" : undefined}
                 whileTap={{ scale: 0.94 }}
-                className={`relative flex h-12 items-center justify-center gap-2 rounded-[20px] px-4 text-sm font-semibold ${
+                className={`relative flex h-12 items-center justify-center gap-2 rounded-[20px] px-3 text-sm font-semibold ${
                   active ? "flex-[1.6] text-accent-ink" : "flex-1 text-bg/55"
                 }`}
               >

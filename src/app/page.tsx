@@ -2,12 +2,14 @@
 
 import { AnimatePresence, MotionConfig, motion, useScroll, useTransform } from "motion/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { AssistantChat } from "@/components/AssistantChat";
 import { BottomNav, TAB_ORDER, type Tab } from "@/components/BottomNav";
 import { Dashboard } from "@/components/Dashboard";
 import { ItemForm } from "@/components/ItemForm";
 import { ProductList } from "@/components/ProductList";
 import { ShoppingList } from "@/components/ShoppingList";
 import { easeOutExpo, spring } from "@/components/motion";
+import { useAssistant, type ItemDraft } from "@/lib/assistant";
 import { predictAll } from "@/lib/prediction";
 import type { ItemInput } from "@/lib/types";
 import { useInventory, useNow } from "@/lib/useInventory";
@@ -16,10 +18,11 @@ const TITLES: Record<Tab, string> = {
   dashboard: "Visão geral",
   products: "Produtos",
   shopping: "Lista de feira",
+  assistant: "Assistente",
 };
 
-/** Formulário: fechado (null), novo item ("new") ou editando um id. */
-type FormState = null | "new" | { id: string };
+/** Formulário: fechado (null), novo item ("new"), editando um id ou revisando um rascunho da IA. */
+type FormState = null | "new" | { id: string } | { draft: ItemDraft };
 
 const pageVariants = {
   enter: (dir: number) => ({ opacity: 0, x: dir * 48, filter: "blur(8px)" }),
@@ -41,8 +44,10 @@ export default function Home() {
   const headerShade = useTransform(scrollY, [0, 60], [0, 1]);
 
   const data = useMemo(() => predictAll(items, now), [items, now]);
+  const ai = useAssistant(data, now);
   const shoppingCount = data.filter((d) => d.prediction.status !== "ok").length;
-  const editing = form && form !== "new" ? items.find((i) => i.id === form.id) ?? null : null;
+  const editing = form && form !== "new" && "id" in form ? items.find((i) => i.id === form.id) ?? null : null;
+  const draft = form && form !== "new" && "draft" in form ? form.draft : null;
 
   useEffect(() => {
     if (!toast) return;
@@ -60,10 +65,20 @@ export default function Home() {
       notify("Item atualizado");
     } else {
       add(input);
-      notify("Item cadastrado");
+      if (draft) ai.resolveDraft(draft.id, "added");
+      notify(`${input.name} cadastrado`);
     }
     setForm(null);
   };
+
+  const confirmDraft = useCallback(
+    (d: ItemDraft) => {
+      add(d.input);
+      ai.resolveDraft(d.id, "added");
+      notify(`${d.input.name} cadastrado`);
+    },
+    [add, ai, notify],
+  );
 
   const changeTab = (t: Tab) => {
     if (t === tab) return;
@@ -127,8 +142,17 @@ export default function Home() {
                   <Dashboard data={data} now={now} onEdit={openEdit} onAdd={() => setForm("new")} onLoadSamples={loadSamples} />
                 ) : tab === "products" ? (
                   <ProductList data={data} onEdit={openEdit} />
-                ) : (
+                ) : tab === "shopping" ? (
                   <ShoppingList data={data} onRestock={restock} notify={notify} />
+                ) : (
+                  <AssistantChat
+                    ai={ai}
+                    hasItems={data.length > 0}
+                    now={now}
+                    onConfirmDraft={confirmDraft}
+                    onEditDraft={(d) => setForm({ draft: d })}
+                    onDiscardDraft={(d) => ai.resolveDraft(d.id, "discarded")}
+                  />
                 )}
               </motion.div>
             </AnimatePresence>
@@ -138,10 +162,11 @@ export default function Home() {
         <BottomNav tab={tab} onTab={changeTab} onAdd={() => setForm("new")} shoppingCount={shoppingCount} />
 
         <AnimatePresence>
-          {form && (form === "new" || editing) && (
+          {form && (form === "new" || editing || draft) && (
             <ItemForm
-              key={editing?.id ?? "new"}
+              key={editing?.id ?? draft?.id ?? "new"}
               item={editing}
+              initial={draft?.input}
               now={now}
               onSave={save}
               onClose={closeForm}

@@ -11,6 +11,8 @@ import { STATUS_META } from "./status";
 
 interface Props {
   item: Item | null; // null = novo item
+  /** Valores iniciais para um item novo (ex.: rascunho criado pela IA). */
+  initial?: ItemInput;
   now: number;
   onSave: (input: ItemInput) => void;
   onDelete?: () => void;
@@ -19,14 +21,15 @@ interface Props {
 
 const round = (n: number) => Math.round(n * 100) / 100;
 
-export function ItemForm({ item, now, onSave, onDelete, onClose }: Props) {
-  const [name, setName] = useState(item?.name ?? "");
-  const [category, setCategory] = useState(item?.category ?? "Despensa");
-  const [unit, setUnit] = useState<Unit>(item?.unit ?? "un");
-  const [quantity, setQuantity] = useState(item ? String(round(estimateCurrentQuantity(item, now))) : "");
-  const [amount, setAmount] = useState(item ? String(item.consumption.amount) : "1");
-  const [periodDays, setPeriodDays] = useState(item ? String(item.consumption.periodDays) : "1");
-  const [restock, setRestock] = useState(item ? String(item.restockAmount) : "");
+export function ItemForm({ item, initial, now, onSave, onDelete, onClose }: Props) {
+  const base = item ?? initial;
+  const [name, setName] = useState(base?.name ?? "");
+  const [category, setCategory] = useState(base?.category ?? "Despensa");
+  const [unit, setUnit] = useState<Unit>(base?.unit ?? "un");
+  const [quantity, setQuantity] = useState(item ? String(round(estimateCurrentQuantity(item, now))) : initial ? String(initial.quantity) : "");
+  const [amount, setAmount] = useState(base ? String(base.consumption.amount) : "1");
+  const [periodDays, setPeriodDays] = useState(base ? String(base.consumption.periodDays) : "1");
+  const [restock, setRestock] = useState(base ? String(base.restockAmount) : "");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const drag = useDragControls();
 
